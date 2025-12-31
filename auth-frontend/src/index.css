@@ -1,0 +1,9 @@
+
+@font-face {
+    font-family: supermercadoOne;
+    src: url(../src/assets/fonts/SupermercadoOne-Regular.ttf);
+}
+@import "tailwindcss";
+@theme{
+    --font-supermercadoOne:supermercadoOne,"sans-serif"
+}

@@ -1,0 +1,12 @@
+{
+  "name": "my-fullstack-app",
+  "private": true,
+  "scripts": {
+    "dev:backend": "cd auth-backend && npm run start:dev",
+    "dev:frontend": "cd auth-frontend && npm run dev",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
