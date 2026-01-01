@@ -10,7 +10,6 @@ export class AuthController {
 async signup(@Body() dto: AuthDto) {
   return this.authService.signup(dto);
 }
-
 @Post('login')
 async login(@Body() dto: AuthDto) {
   return this.authService.login(dto);

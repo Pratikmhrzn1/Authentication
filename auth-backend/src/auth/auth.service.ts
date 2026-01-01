@@ -13,26 +13,29 @@ import * as admin from 'firebase-admin';
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
-
   constructor(private readonly firebaseService: FirebaseService) {}
-
   async signup(dto: SignupDto) {
     const { email, password, fullName, phoneNumber, role = 2 } = dto;
-
     try {
-      // Check if user exists
+      // Check if email already exists
       try {
         await this.firebaseService.getUserByEmail(email);
         throw new BadRequestException('Email already registered');
       } catch (error: any) {
-        if (error.code !== 'auth/user-not-found') throw error;
+        if (error.code !== 'auth/user-not-found') {
+          throw error;
+        }
+
       }
-
-      // Create in Firebase Auth
+      // Create user in Firebase Authentication
       const userRecord = await this.firebaseService.createUser(email, password);
-
-      // Save profile in Firestore
+      // Generate custom readable appId: USER-2082-0001
+      const Year = new Date().getFullYear();
+      const currentYear=Year+56;
+      const userCount = await this.getNextUserSequence();
+      const appId = `USER-${currentYear}-${String(userCount).padStart(4, '0')}`; 
       const userData = {
+        appId, 
         email,
         fullName: fullName || '',
         phoneNumber: phoneNumber || '',
@@ -47,16 +50,32 @@ export class AuthService {
         .doc(userRecord.uid)
         .set(userData);
 
+      if (role >= 3) {
+        const collectionName= role ===4?'operatorUsers':'adminUsers';
+        await this.firebaseService
+          .getFirestore()
+          .collection(collectionName)
+          .doc(userRecord.uid)
+          .set({ ...userData, userType: role });
+      }
+
       // Generate custom token for immediate login
       const customToken = await this.firebaseService.getAuth().createCustomToken(userRecord.uid);
-
-      this.logger.log(`Signup successful: ${email}`);
+      const roleName = {
+        1:'Super Admin',
+        2:'User',
+        3:'Admin',
+        4:'Operator',
+      }[role] || 'User';
+      this.logger.log(`Signup successful: ${email} | appId: ${appId} | Role:${roleName}`);
 
       return {
         uid: userRecord.uid,
         email,
+        appId,
         customToken,
-        message: 'Signup successful. Use customToken to sign in.',
+        roleName,
+        message: 'Signup successful. Use customToken to sign in on client.',
       };
     } catch (error: any) {
       this.logger.error('Signup failed', error.stack);
@@ -64,12 +83,41 @@ export class AuthService {
     }
   }
 
+  /**
+   * Generate sequential number for appId using Firestore transaction
+   * Ensures no duplicates even with concurrent signups
+   */
+  private async getNextUserSequence(): Promise<number> {
+    const counterRef = this.firebaseService
+      .getFirestore()
+      .collection('counters')
+      .doc('userSequence');
+
+    return this.firebaseService.getFirestore().runTransaction(async (transaction) => {
+      const doc = await transaction.get(counterRef);
+
+      let newCount = 1;
+      if (doc.exists) {
+        newCount = (doc.data()?.count || 0) + 1;
+      }
+
+      // Save incremented count
+      transaction.set(counterRef, { count: newCount }, { merge: true });
+
+      return newCount;
+    });
+  }
+
+  
   async login(dto: LoginDto) {
     const { email, password } = dto;
+
     try {
-      // Verify user exists
+      // Verify user exists in Auth
       const userRecord = await this.firebaseService.getUserByEmail(email);
+
       const apiKey = process.env.FIREBASE_API_KEY;
+
       if (!apiKey) {
         const customToken = await this.firebaseService.getAuth().createCustomToken(userRecord.uid);
         return {
@@ -80,7 +128,6 @@ export class AuthService {
         };
       }
 
-      // Get real ID token via REST API
       const response = await axios.post(
         `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${apiKey}`,
         { email, password, returnSecureToken: true },
@@ -88,13 +135,15 @@ export class AuthService {
 
       const { idToken, refreshToken, expiresIn } = response.data;
 
+      this.logger.log(`Login successful: ${email}`);
+
       return {
         idToken,
         refreshToken,
         expiresIn: parseInt(expiresIn),
         uid: userRecord.uid,
         email,
-        message: 'Login successful',
+        message: 'Login successful. Use idToken with Firebase client SDK.',
       };
     } catch (error: any) {
       this.logger.error('Login failed', error.stack);
@@ -109,8 +158,13 @@ export class AuthService {
       .doc(uid)
       .get();
 
-    if (!doc.exists) throw new BadRequestException('User not found');
+    if (!doc.exists) {
+      throw new BadRequestException('User profile not found');
+    }
 
-    return { uid, ...doc.data() };
+    return {
+      uid,
+      ...doc.data(),
+    };
   }
 }
