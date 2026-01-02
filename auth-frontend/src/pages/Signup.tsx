@@ -3,8 +3,10 @@ import axios from 'axios';
 import { Mail, Lock, User, Phone, Eye, EyeOff, Menu, X } from 'lucide-react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext'; // ← UNCOMMENTED
 
-import backgroundImg from "../assets/background.png"
+import backgroundImg from "../assets/background.png";
 import logoImg from '../assets/hugeicons_course.png';
 
 function SignUp() {
@@ -17,7 +19,11 @@ function SignUp() {
   const [isLoading, setIsLoading] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const navigate = useNavigate();
+  const { login } = useAuth(); // ← Now available
+
   const API_URL = 'http://localhost:3000/auth';
+
   const formFields = [
     {
       id: 'fullName',
@@ -77,7 +83,7 @@ function SignUp() {
 
       toast.success(
         <div>
-          <strong>Signup Successful!</strong>
+          <strong> Signup Successful!</strong>
           <p className="text-sm mt-1">Welcome to Tic's Course, {fullName || email}!</p>
         </div>,
         {
@@ -92,6 +98,24 @@ function SignUp() {
       );
 
       console.log('Signup response:', res.data);
+
+      
+      const userData = {
+        uid: res.data.uid,
+        email: res.data.email,
+        fullName: fullName,
+        appId: res.data.appId || '',
+        phoneNumber: phoneNumber,
+      };
+
+      login(res.data.customToken || res.data.idToken, userData);
+
+      
+      if (keepSignedIn) {
+        navigate('/Freetrial', { replace: true });
+      }
+
+      // Reset form
       setEmail('');
       setFullName('');
       setPhoneNumber('');
@@ -100,12 +124,12 @@ function SignUp() {
       const errorMsg = err.response?.data?.message || 'Signup failed. Please try again.';
       toast.error(
         <div>
-          <strong>Signup Failed</strong>
+          <strong> Signup Failed</strong>
           <p className="text-sm mt-1">{errorMsg}</p>
         </div>,
         {
           position: 'top-right',
-          autoClose: 10000,
+          autoClose: 10000,//10sec
           hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: true,
@@ -134,22 +158,15 @@ function SignUp() {
             Tic's Course
           </h1>
         </div>
-        {/* <nav className="hidden md:flex items-center gap-4">
-          <button className="px-8 py-2 text-white font-medium bg-[#5C7C94] hover:bg-blue-800 rounded-lg transition">
-            Log In
-          </button>
-          <button className="px-6 py-2 border border-[#5C7C94] text-[#24384B] font-medium rounded-lg hover:bg-[#1e40af] hover:text-white transition">
-            Free Trial
-          </button>
-        </nav> */}
+
         <nav className="hidden md:flex items-center gap-4">
-  <a href="/login" className="px-8 py-2 text-white font- bg-[#5C7C94] hover:bg-blue-800 rounded-lg transition">
-    Log In
-  </a>
-  <a href="/Freetrial" className="px-6 py-2 border border-[#5C7C94] text-[#24384B] font-medium rounded-lg hover:bg-[#1e40af] transition">
-    Free Trial
-  </a>
-</nav>
+          <a href="/login" className="px-8 py-2 text-white font-medium bg-[#5C7C94] hover:bg-blue-800 rounded-lg transition">
+            Log In
+          </a>
+          <a href="/Freetrial" className="px-6 py-2 border border-[#5C7C94] text-[#24384B] font-medium rounded-lg hover:bg-[#1e40af] transition">
+            Free Trial
+          </a>
+        </nav>
 
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -159,6 +176,7 @@ function SignUp() {
           {isMobileMenuOpen ? <X size={32} /> : <Menu size={32} />}
         </button>
       </header>
+
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <>
@@ -179,13 +197,14 @@ function SignUp() {
               <button className="py-3 text-left text-gray-700 font-medium hover:bg-gray-100 rounded-lg px-4 transition">
                 Log In
               </button>
-              <button className="py-3 bg-[#1e3a8a] text-white font-medium rounded-lg hover:bg-[#1e40af] transition px-4">
+              <button className="py-3 bg-[#1e3a8a] text-white font-medium rounded-lg hover:bg-[#948608] transition px-4">
                 Free Trial
               </button>
             </div>
           </div>
         </>
       )}
+
       {/* Main Signup Card */}
       <div className="relative z-10 w-full max-w-lg px-0 mt-10">
         <div className="absolute inset-0 bg-[#0f172a]/30 backdrop-blur-lg rounded-3xl -z-10" />
@@ -195,6 +214,7 @@ function SignUp() {
           <p className="text-center text-gray-300 mb-8 text-sm leading-relaxed">
             Build your real world skills which matters with our S-tier courses and we assure you a very bright future.
           </p>
+
           <form onSubmit={handleSignup} className="space-y-6">
             {formFields.map((field) => (
               <div key={field.id}>
@@ -220,7 +240,7 @@ function SignUp() {
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-3.5 text-gray-400 hover:text-white"
                     >
-                      {showPassword ? <Eye size={20} />:<EyeOff size={20} />}
+                      {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
                     </button>
                   )}
                 </div>

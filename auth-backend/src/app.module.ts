@@ -26,9 +26,9 @@ export class AppModule {
             privateKey: privateKey.replace(/\\n/g, '\n'),  
           }),
         });
-        console.log('✅ Firebase Admin initialized successfully');
+        console.log('Firebase Admin initialized successfully');
       } catch (error) {
-        console.error('❌ Firebase Admin init failed:', error);
+        console.error('Firebase Admin init failed:', error);
       }
     }
   }

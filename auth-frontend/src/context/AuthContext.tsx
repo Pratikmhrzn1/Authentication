@@ -1,16 +1,12 @@
 import  { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-
-// ✅ Put the User interface here — at the top of the file
 export interface User {
   uid: string;
   email: string;
-  fullName?: string;
+  fullName: string;
   appId?: string;
   phoneNumber?: string;
   role?: number;
 }
-
-// Define context type
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
@@ -19,10 +15,9 @@ interface AuthContextType {
   logout: () => void;
 }
 
-// Create context
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Provider
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -71,7 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Hook
+
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

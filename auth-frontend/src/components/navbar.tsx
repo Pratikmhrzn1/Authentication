@@ -1,6 +1,3 @@
-// src/components/Navbar.tsx
-// Clean version with real AuthContext import
-
 import { Menu, X, User, Settings, LogIn, LogOut, HelpCircle, Search, BookOpen } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from '../context/AuthContext'; 
@@ -44,7 +41,7 @@ export default function Navbar() {
           </div>
           <div>
             <h1 className="text-lg sm:text-xl lg:text-2xl font-bold bg-linear-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">Tic's Course</h1>
-            <p className="hidden sm:block text-xs text-gray-500">Learn & Grow</p>
+            {/* <p className="hidden sm:block text-xs text-gray-500">Learn & Grow</p> */}
           </div>
         </div>
 

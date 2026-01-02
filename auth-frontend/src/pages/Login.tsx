@@ -30,19 +30,19 @@ function Login() {
     console.log('Login success:', res.data);
 
     const userData = {
-      uid: res.data.uid,
-      email: res.data.email,
-      fullName: '', // You can add this later if needed
-      appId: '',    // From profile later
-    };
+  uid: res.data.uid,
+  email: res.data.email,
+  fullName: res.data.fullName ,
+  appId: res.data.appId || '',
+};
 
     login(res.data.customToken, userData);
 
-    toast.success('🎉 Login successful! Welcome back!', { theme: 'dark' });
+    toast.success(' Login successful! Welcome back!', { theme: 'dark' });
 
     navigate('/freeTrial', { replace: true });
   } catch (err: any) {
-    toast.error(`❌ ${err.response?.data?.message || 'Invalid email or password'}`, { theme: 'dark' });
+    toast.error(` ${err.response?.data?.message || 'Invalid email or password'}`, { theme: 'dark' });
   } finally {
     setIsLoading(false);
   }

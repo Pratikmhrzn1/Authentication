@@ -9,17 +9,12 @@ import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import axios from 'axios';
 import * as admin from 'firebase-admin';
-
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
-
   constructor(private readonly firebaseService: FirebaseService) {}
-
-
   async signup(dto: SignupDto) {
     const { email, password, fullName, phoneNumber, role = 2 } = dto;
-
     try {
       // Check if email exists
       try {
@@ -28,7 +23,6 @@ export class AuthService {
       } catch (err: any) {
         if (err.code !== 'auth/user-not-found') throw err;
       }
-
       // Create user
       const userRecord = await this.firebaseService.createUser(email, password);
 
@@ -46,7 +40,6 @@ export class AuthService {
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       };
-
       await this.firebaseService
         .getFirestore()
         .collection('userList')
@@ -58,7 +51,6 @@ export class AuthService {
         .createCustomToken(userRecord.uid);
 
       this.logger.log(`Signup successful: ${email}`);
-
       return {
         uid: userRecord.uid,
         email,
@@ -79,12 +71,9 @@ export class AuthService {
   try {
     // 1. Get user record (this proves user exists in Firebase Auth)
     const userRecord = await this.firebaseService.getUserByEmail(email);
-
     // 2. Generate custom token (server-side, trusted)
     const customToken = await this.firebaseService.getAuth().createCustomToken(userRecord.uid);
-
     this.logger.log(`Login successful (custom token): ${email}`);
-
     return {
       customToken,
       uid: userRecord.uid,
