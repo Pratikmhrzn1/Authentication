@@ -6,10 +6,11 @@ async function bootstrap() {
 
   // ← ADD THIS BLOCK TO ENABLE CORS
   app.enableCors({
-    origin: 'http://localhost:5173', // Allow only your Vite frontend
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    credentials: true, // If you plan to send cookies/auth later
-  });
+    origin: 'http://localhost:5173', // Vite default port
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  }); 
   // ← END OF CORS BLOCK
 
   await app.listen(3000);

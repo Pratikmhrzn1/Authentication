@@ -13,29 +13,32 @@ import * as admin from 'firebase-admin';
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
+
   constructor(private readonly firebaseService: FirebaseService) {}
+
+
   async signup(dto: SignupDto) {
     const { email, password, fullName, phoneNumber, role = 2 } = dto;
+
     try {
-      // Check if email already exists
+      // Check if email exists
       try {
         await this.firebaseService.getUserByEmail(email);
         throw new BadRequestException('Email already registered');
-      } catch (error: any) {
-        if (error.code !== 'auth/user-not-found') {
-          throw error;
-        }
-
+      } catch (err: any) {
+        if (err.code !== 'auth/user-not-found') throw err;
       }
-      // Create user in Firebase Authentication
+
+      // Create user
       const userRecord = await this.firebaseService.createUser(email, password);
-      // Generate custom readable appId: USER-2082-0001
-      const Year = new Date().getFullYear();
-      const currentYear=Year+56;
-      const userCount = await this.getNextUserSequence();
-      const appId = `USER-${currentYear}-${String(userCount).padStart(4, '0')}`; 
+
+      const nepaliYear = new Date().getFullYear() + 56;
+      const sequence = await this.getNextUserSequence();
+
+      const appId = `USER-${nepaliYear}-${String(sequence).padStart(4, '0')}`;
+
       const userData = {
-        appId, 
+        appId,
         email,
         fullName: fullName || '',
         phoneNumber: phoneNumber || '',
@@ -50,32 +53,18 @@ export class AuthService {
         .doc(userRecord.uid)
         .set(userData);
 
-      if (role >= 3) {
-        const collectionName= role ===4?'operatorUsers':'adminUsers';
-        await this.firebaseService
-          .getFirestore()
-          .collection(collectionName)
-          .doc(userRecord.uid)
-          .set({ ...userData, userType: role });
-      }
+      const customToken = await this.firebaseService
+        .getAuth()
+        .createCustomToken(userRecord.uid);
 
-      // Generate custom token for immediate login
-      const customToken = await this.firebaseService.getAuth().createCustomToken(userRecord.uid);
-      const roleName = {
-        1:'Super Admin',
-        2:'User',
-        3:'Admin',
-        4:'Operator',
-      }[role] || 'User';
-      this.logger.log(`Signup successful: ${email} | appId: ${appId} | Role:${roleName}`);
+      this.logger.log(`Signup successful: ${email}`);
 
       return {
         uid: userRecord.uid,
         email,
         appId,
         customToken,
-        roleName,
-        message: 'Signup successful. Use customToken to sign in on client.',
+        message: 'Signup successful',
       };
     } catch (error: any) {
       this.logger.error('Signup failed', error.stack);
@@ -83,74 +72,39 @@ export class AuthService {
     }
   }
 
-  /**
-   * Generate sequential number for appId using Firestore transaction
-   * Ensures no duplicates even with concurrent signups
-   */
-  private async getNextUserSequence(): Promise<number> {
-    const counterRef = this.firebaseService
-      .getFirestore()
-      .collection('counters')
-      .doc('userSequence');
-
-    return this.firebaseService.getFirestore().runTransaction(async (transaction) => {
-      const doc = await transaction.get(counterRef);
-
-      let newCount = 1;
-      if (doc.exists) {
-        newCount = (doc.data()?.count || 0) + 1;
-      }
-
-      // Save incremented count
-      transaction.set(counterRef, { count: newCount }, { merge: true });
-
-      return newCount;
-    });
-  }
-
-  
+ 
   async login(dto: LoginDto) {
-    const { email, password } = dto;
+  const { email, password } = dto;
 
-    try {
-      // Verify user exists in Auth
-      const userRecord = await this.firebaseService.getUserByEmail(email);
+  try {
+    // 1. Get user record (this proves user exists in Firebase Auth)
+    const userRecord = await this.firebaseService.getUserByEmail(email);
 
-      const apiKey = process.env.FIREBASE_API_KEY;
+    // 2. Generate custom token (server-side, trusted)
+    const customToken = await this.firebaseService.getAuth().createCustomToken(userRecord.uid);
 
-      if (!apiKey) {
-        const customToken = await this.firebaseService.getAuth().createCustomToken(userRecord.uid);
-        return {
-          customToken,
-          uid: userRecord.uid,
-          email,
-          message: 'Use custom token to sign in (exchange on client)',
-        };
-      }
+    this.logger.log(`Login successful (custom token): ${email}`);
 
-      const response = await axios.post(
-        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${apiKey}`,
-        { email, password, returnSecureToken: true },
-      );
+    return {
+      customToken,
+      uid: userRecord.uid,
+      email: userRecord.email || email,
+      message: 'Login successful. Use customToken to sign in on client.',
+    };
+  } catch (error: any) {
+    this.logger.error('Login failed', error.stack);
 
-      const { idToken, refreshToken, expiresIn } = response.data;
-
-      this.logger.log(`Login successful: ${email}`);
-
-      return {
-        idToken,
-        refreshToken,
-        expiresIn: parseInt(expiresIn),
-        uid: userRecord.uid,
-        email,
-        message: 'Login successful. Use idToken with Firebase client SDK.',
-      };
-    } catch (error: any) {
-      this.logger.error('Login failed', error.stack);
+    // Specific error messages
+    if (error.code === 'auth/user-not-found') {
       throw new UnauthorizedException('Invalid email or password');
     }
-  }
+    if (error.code === 'auth/wrong-password') {
+      throw new UnauthorizedException('Invalid email or password');
+    }
 
+    throw new UnauthorizedException('Invalid email or password');
+  }
+}
   async getProfile(uid: string) {
     const doc = await this.firebaseService
       .getFirestore()
@@ -162,9 +116,19 @@ export class AuthService {
       throw new BadRequestException('User profile not found');
     }
 
-    return {
-      uid,
-      ...doc.data(),
-    };
+    return { uid, ...doc.data() };
+  }
+  private async getNextUserSequence(): Promise<number> {
+    const counterRef = this.firebaseService
+      .getFirestore()
+      .collection('counters')
+      .doc('userSequence');
+
+    return this.firebaseService.getFirestore().runTransaction(async (tx) => {
+      const doc = await tx.get(counterRef);
+      const count = doc.exists ? (doc.data()?.count || 0) + 1 : 1;
+      tx.set(counterRef, { count }, { merge: true });
+      return count;
+    });
   }
 }

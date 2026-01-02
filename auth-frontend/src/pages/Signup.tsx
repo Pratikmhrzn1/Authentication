@@ -3,11 +3,11 @@ import axios from 'axios';
 import { Mail, Lock, User, Phone, Eye, EyeOff, Menu, X } from 'lucide-react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-// import { BrowserRouter } from 'react-router-dom';
-import backgroundImg from './assets/background.png';
-import logoImg from './assets/hugeicons_course.png';
 
-function App() {
+import backgroundImg from "../assets/background.png"
+import logoImg from '../assets/hugeicons_course.png';
+
+function SignUp() {
   const [email, setEmail] = useState('');
   const [fullName, setFullName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -134,14 +134,22 @@ function App() {
             Tic's Course
           </h1>
         </div>
-        <nav className="hidden md:flex items-center gap-4">
+        {/* <nav className="hidden md:flex items-center gap-4">
           <button className="px-8 py-2 text-white font-medium bg-[#5C7C94] hover:bg-blue-800 rounded-lg transition">
             Log In
           </button>
           <button className="px-6 py-2 border border-[#5C7C94] text-[#24384B] font-medium rounded-lg hover:bg-[#1e40af] hover:text-white transition">
             Free Trial
           </button>
-        </nav>
+        </nav> */}
+        <nav className="hidden md:flex items-center gap-4">
+  <a href="/login" className="px-8 py-2 text-white font- bg-[#5C7C94] hover:bg-blue-800 rounded-lg transition">
+    Log In
+  </a>
+  <a href="/Freetrial" className="px-6 py-2 border border-[#5C7C94] text-[#24384B] font-medium rounded-lg hover:bg-[#1e40af] transition">
+    Free Trial
+  </a>
+</nav>
 
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -248,4 +256,4 @@ function App() {
   );
 }
 
-export default App;
+export default SignUp;
