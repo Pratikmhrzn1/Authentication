@@ -60,8 +60,8 @@ function Login() {
       <header className="absolute top-0 left-0 right-0 p-4 md:p-8 flex justify-between items-center z-30">
         <div className="flex items-center gap-3">
           <img src={logoImg} alt="Logo" className="w-10 h-10" />
-          <h1 className="text-2xl font-bold text-gray-800 hidden md:block">
-            Tic's Course
+          <h1 className="text-2xl font-bold text-green-800 hidden md:block">
+            PesaPort
           </h1>
         </div>
 
