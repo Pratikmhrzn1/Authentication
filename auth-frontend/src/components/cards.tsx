@@ -288,7 +288,7 @@ function ServiceCard({ service }: { service: any }) {
             {service.price}
           </span>
 
-          <button className="px-4 py-1.5 text-sm font-semibold rounded-full
+          <button className="px-4 py-1.5 text-sm font-semibold rounded-lg
             bg-[#5C7C94] text-white
             hover:bg-[#B026FF] active:scale-95
             transition-all duration-200 shadow hover:shadow-md">

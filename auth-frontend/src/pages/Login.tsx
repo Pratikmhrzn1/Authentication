@@ -60,8 +60,8 @@ function Login() {
         </div>
 
         <nav className="hidden md:flex items-center gap-4">
-          <a href="/login" className="px-8 py-2 text-white font-medium bg-[#5C7C94] hover:bg-blue-800 rounded-lg transition">
-            Log In
+          <a href="/" className="px-8 py-2 text-white font-medium bg-[#5C7C94] hover:bg-blue-800 rounded-lg transition">
+            Sign Up
           </a>
           <a href="/Freetrial" className="px-6 py-2 border border-[#5C7C94] text-[#24384B] font-medium rounded-lg hover:bg-white hover:text-black transition">
             Free Trial

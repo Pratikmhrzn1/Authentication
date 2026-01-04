@@ -40,7 +40,7 @@ export default function Navbar() {
             <img src={Logo} alt="Logo" className="w-60 h-60 object-contain" />
           </div>
           <div>
-            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold bg-linear-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">PesaPort</h1>
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold bg-linear-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">पेसापोर्ट</h1>
             {/* <p className="hidden sm:block text-xs text-gray-500">Learn & Grow</p> */}
           </div>
         </div>
@@ -56,7 +56,7 @@ export default function Navbar() {
 
         <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-gray-700 font-medium">
           <a href="#" className="hover:text-amber-600 transition-colors duration-300 relative group">About<span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-500 group-hover:w-full transition-all duration-300"></span></a>
-          <a href="#" className="hover:text-amber-600 transition-colors duration-300 relative group">Category<span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-500 group-hover:w-full transition-all duration-300"></span></a>
+          <a href="#" className="hover:text-amber-600 transition-colors duration-300 relative group">Services<span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-500 group-hover:w-full transition-all duration-300"></span></a>
           <a href="#" className="hover:text-amber-600 transition-colors duration-300 relative group">FAQ<span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-500 group-hover:w-full transition-all duration-300"></span></a>
           <a href="#" className="hover:text-amber-600 transition-colors duration-300 relative group">Contact<span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-500 group-hover:w-full transition-all duration-300"></span></a>
 

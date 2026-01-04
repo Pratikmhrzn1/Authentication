@@ -36,7 +36,7 @@ export default function FreeTrial() {
       <Navbar />
 
       {/* HERO */}
-      <section className="relative pt-32 pb-24 overflow-hidden">
+      <section className="relative pt-38 pb-24 overflow-hidden">
         <div className="absolute inset-0 bg-linear-to-br from-orange-100/60 via-yellow-100/40 to-transparent" />
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-orange-300/30 rounded-full blur-3xl" />
         <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-yellow-300/30 rounded-full blur-3xl" />
@@ -87,7 +87,7 @@ export default function FreeTrial() {
       <section className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center text-[#24384B] mb-14">
-            How WorkHub Protects You
+            How PesaPort Protects You
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -113,8 +113,8 @@ export default function FreeTrial() {
       <FeaturedServices/>
 
       {/* CATEGORIES */}
-      <section className="bg-white py-20 px-4">
-        <div className="max-w-6xl mx-auto">
+      <section className="bg-white py-10 px-2">
+        <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-12">
             <h2 className="text-4xl font-bold text-[#24384B]">Popular Categories</h2>
             <button className="flex items-center text-orange-500 font-semibold hover:text-orange-600 transition">
@@ -156,7 +156,7 @@ export default function FreeTrial() {
           Ready to Get Started?
         </h2>
         <p className="text-xl text-white/90 mb-10">
-          Join thousands who trust WorkHub for secure work.
+          Join thousands who trust PesaPort for secure work.
         </p>
         <button className="bg-white text-orange-500 px-12 py-4 rounded-full text-lg font-bold shadow-2xl hover:scale-105 transition">
           Create Free Account
@@ -168,7 +168,7 @@ export default function FreeTrial() {
         <div className="max-w-6xl mx-auto text-center">
           <div className="flex justify-center items-center gap-2 mb-4">
             <Briefcase className="text-orange-400" />
-            <span className="text-2xl font-bold">WorkHub</span>
+            <span className="text-2xl font-bold">PesaPort</span>
           </div>
           <p className="text-gray-400 mb-8">
             Secure payments. Trusted workers. Real results.
@@ -180,7 +180,7 @@ export default function FreeTrial() {
             <a href="#" className="hover:text-white">Contact</a>
           </div>
           <div className="mt-8 text-sm text-gray-500">
-            © 2025 WorkHub. All rights reserved.
+            © 2025 PesaPort. All rights reserved.
           </div>
         </div>
       </footer>
